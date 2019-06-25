@@ -1,0 +1,84 @@
+x=np.array([[0,0,1],
+            [0,1,1],
+            [1,0,1],
+             [1,1,1],
+            [1,0,1],
+             [1,1,1]])
+y=np.array([[0],
+            [1],
+            [1],
+           [0],
+           [1],
+           [0]])
+np.random.seed(10)
+w1=2*np.random.random((3,5))-1
+w2=2*np.random.random((5,7))-1
+w3=2*np.random.random((7,5))-1
+w4=2*np.random.random((5,1))-1
+def sigmoid(x):
+    return 1/(1+np.exp(-x))
+def derivative(x):
+    return x*(1-x)
+
+def mse(y,ycap):
+    return ((y-ycap)**2).mean()
+def train(x,y,w,iter,W=[w1,w2,w3,w4],conv=0.0000001):
+    W1=W[0]
+    W2=W[1]
+    W3=W[2]
+    W4=W[3]
+    pe=0
+    for i in range(iter):
+        l1=sigmoid(x.dot(W1))
+        l2=sigmoid(l1.dot(W2))
+        l3=sigmoid(l2.dot(W3))
+        l4=sigmoid(l3.dot(W4))
+        ce=mse(y,l4)
+        diff=abs(ce-pe)
+        j=0
+        if diff<=conv:
+            print("training completed after",i+1, "iterations")
+            j=1
+            break
+        if i%100==0:
+            print("current error", ce)
+        e4=y-l4
+        delta4=e4*derivative(l4)
+        e3=delta4.dot(W4.T)
+        delta3=e3*derivative(l3)
+        e2=delta3.dot(W3.T)
+        delta2=e2*derivative(l2)
+        e1=delta2.dot(W2.T)
+        delta1=e1*derivative(l1)
+        W1+=x.T.dot(delta1)
+        W2+=l1.T.dot(delta2)
+        W3+=l2.T.dot(delta3)
+        W4+=l3.T.dot(delta4)
+    if j==0:
+         print('training not completed')
+    return [W1,W2,W3,W4]
+theta=train(x,y,w,10000,[w1,w2,w3,w4],conv=0.00001)
+def predict(x,w):
+    r=x
+    for v in w:
+        return r.dot(v)
+
+arr=[]
+def label(x):
+    nlabels=len(set(l))
+    array=[]
+    for v in l:
+        binary=np.zeros(nlabels)
+        binary[v]=1
+        array.append(binary)
+    return array
+    
+
+def predictionToLabels(ycap):
+
+    labels=[]
+    for v in ycap:
+        l=np.where(v==1)[0][0]
+        labels.append(l)
+    return labels
+    
